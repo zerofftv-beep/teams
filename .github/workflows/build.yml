@@ -19,22 +19,22 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x */gradlew
-
-      - name: Build Multiplayer Addon
-        working-directory: superbwarfare-multiplayer-addon
-        run: ./gradlew build
+      - name: Make gradlew executable (sbw-teams)
+        run: |
+          if [ -f "sbw-teams/gradlew" ]; then
+            chmod +x sbw-teams/gradlew
+          elif [ -f "gradlew" ]; then
+            chmod +x gradlew
+          fi
 
       - name: Build SBW Teams
         working-directory: sbw-teams
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon
 
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: built-mods
-          path: |
-            superbwarfare-multiplayer-addon/build/libs/*.jar
-            sbw-teams/build/libs/*.jar
+          name: sbw-teams
+          path: sbw-teams/build/libs/*.jar
