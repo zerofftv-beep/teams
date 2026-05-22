@@ -10,16 +10,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public class PlayerNameTagMixin {
+public abstract class PlayerNameTagMixin {
 
     @Inject(method = "isInvisibleTo", at = @At("RETURN"), cancellable = true)
-    private void forceNameVisibility(Player player, CallbackInfoReturnable<Boolean> cir) {
-        if (player instanceof LocalPlayer local && this instanceof Player target) {
-            Team myTeam = TeamManager.getTeam(local);
-            Team targetTeam = TeamManager.getTeam(target);
-            if (myTeam != null && myTeam.equals(targetTeam)) {
-                cir.setReturnValue(false); // Всегда видимы для своей команды
-            }
+    private void forceNameVisibility(Player viewer, CallbackInfoReturnable<Boolean> cir) {
+        Player target = (Player) (Object) this;
+
+        // Только на клиенте
+        if (!(viewer instanceof LocalPlayer)) return;
+
+        Team myTeam = TeamManager.getTeam(viewer);
+        Team targetTeam = TeamManager.getTeam(target);
+
+        if (myTeam != null && myTeam.equals(targetTeam)) {
+            cir.setReturnValue(false);
         }
     }
 }
